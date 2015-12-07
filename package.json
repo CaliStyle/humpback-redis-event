@@ -1,0 +1,29 @@
+{
+  "name": "humpback-redis-event",
+  "version": "0.11.0",
+  "description": "Distributed pub/sub events based on redis",
+  "author": "Scott Wyatt <scottwyatt86@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CaliStyle/humpback-redis-event.git"
+  },
+  "keywords": [
+    "redis",
+    "event",
+    "eventemitter",
+    "pubsub"
+  ],
+  "engine": ">= node 0.10",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha test"
+  },
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.21.4"
+  },
+  "dependencies": {
+    "fakeredis": "^1.0.0",
+    "redis": ">= 0.8.x"
+  }
+}
