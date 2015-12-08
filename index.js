@@ -11,7 +11,14 @@ function RedisEvent(channelsList, options) {
 
 	self._connectedCount = 0;
 
+	self._ready = false;
+
 	options = options || {};
+
+	if (!channelsList || !(channelsList instanceof Array) || channelsList.length < 0) {
+		throw new Error("Channel syntax is incorrect, must be an array");
+	}
+	this.channelsList = channelsList;
 
 	if( typeof options.redis === 'string' ) {
 	    // parse the url
@@ -34,11 +41,6 @@ function RedisEvent(channelsList, options) {
 
 	options.redis = options.redis || {};
 
-	if (!channelsList || !(channelsList instanceof Array) || channelsList.length < 0) {
-		throw new Error("Channel syntax is incorrect, must be an array");
-	}
-	this.channelsList = channelsList;
-
 	var pubClientFactoryMethod = options.redis.createClientFactory || self.createClientFactory;
     var pubClient = pubClientFactoryMethod(options);
 
@@ -58,6 +60,11 @@ function RedisEvent(channelsList, options) {
 		self._connectedCount++;
 		if (self._connectedCount == 2) {
 			self.emit('ready');
+			self._ready = true;
+
+			self.channelsList.forEach(function(channelName) {
+				self.subscribe(channelName);
+			});
 		}
 	});
 
@@ -81,13 +88,14 @@ function RedisEvent(channelsList, options) {
 
 	this.subRedis.on('ready', function() {
 		self._connectedCount++;
-	
-		self.channelsList.forEach(function(channelName) {
-			self.subscribe(channelName);
-		});
 
 		if (self._connectedCount == 2) {
 			self.emit('ready');
+			self._ready = true;
+
+			self.channelsList.forEach(function(channelName) {
+				self.subscribe(channelName);
+			});
 		}
 	});
 
@@ -102,8 +110,13 @@ util.inherits(RedisEvent, events.EventEmitter);
  * @param {String} channelName
  */
 RedisEvent.prototype.subscribe = function(channelName) {
-	
-	this.subRedis.subscribe(channelName);
+	if(this._ready){
+		this.subRedis.subscribe(channelName);
+	}else{
+		if(this.channelsList.indexOf(channelName) === -1) {
+			this.channelsList.push(channelName);
+		}
+	}
 };
 
 /* unsubscribe

@@ -32,9 +32,11 @@ describe("Events#", function() {
 
 	it("should subscribe to a new channel and pubsub", function(done) {
 		var ev = new RedisEvent([], options);
+		
+		ev.subscribe('main2');
+
 		ev.on('ready', function() {
-			ev.subscribe('main2');
-			
+				
 			ev.on('main2:hello', function(data) {
 				assert.deepEqual(data, {name: 'Scott'});
 				ev.quit();

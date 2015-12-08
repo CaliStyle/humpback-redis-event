@@ -16,21 +16,21 @@ var options = {
 var assert = require('chai').assert;
 
 describe("Options#", function() {
-	it("should require channels list option", function() {
+	it("should require params", function() {
 		assert.throw(function() {
 			new RedisEvent();
 		});
 	});
 
-	it("should require channels list option to be set", function() {
+	it("should require channels list to be set", function() {
 		assert.throw(function() {
 			new RedisEvent(options);
 		});
 	});
 	
-	it("should require channels list option to be an array", function() {
+	it("should require channels list to be an array", function() {
 		assert.throw(function() {
-			new RedisEvent(null,options);
+			new RedisEvent(null);
 		});
 	});
 });
