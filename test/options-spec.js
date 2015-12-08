@@ -22,15 +22,15 @@ describe("Options#", function() {
 		});
 	});
 
-	it("should require channels list option to be an array", function() {
+	it("should require channels list option to be set", function() {
 		assert.throw(function() {
 			new RedisEvent(options);
 		});
 	});
-
-	it("should require channels list option to be not empty array", function() {
+	
+	it("should require channels list option to be an array", function() {
 		assert.throw(function() {
-			new RedisEvent([],options);
+			new RedisEvent(null,options);
 		});
 	});
 });

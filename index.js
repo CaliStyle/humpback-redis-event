@@ -16,7 +16,7 @@ function RedisEvent(channelsList, options) {
 	    // parse the url
 	    var conn_info = url.parse(options.redis, true /* parse query string */);
 	    if( conn_info.protocol !== 'redis:' ) {
-	      throw new Error('kue connection string must use the redis: protocol');
+	      throw new Error('redis-event connection string must use the redis: protocol');
 	    }
 
 	    options.redis = {
@@ -33,7 +33,7 @@ function RedisEvent(channelsList, options) {
 
 	options.redis = options.redis || {};
 
-	if (!channelsList || !(channelsList instanceof Array) || channelsList.length === 0) {
+	if (!channelsList || !(channelsList instanceof Array) || channelsList.length < 0) {
 		throw new Error("No channels specified to RedisEvent");
 	}
 	this.channelsList = channelsList;
@@ -50,16 +50,6 @@ function RedisEvent(channelsList, options) {
 	}
 
 	this.pubRedis = pubClient;
-	/*
-	this.pubRedis = redis.createClient(
-		options.port || 6379, options.host || '127.0.0.1', {
-			enable_offline_queue: false,
-			retry_max_delay: 10000,
-			max_attempts: 10000,
-			no_ready_check: true
-		}
-	);
-	*/
 
 	this.pubRedis.on('error', function(e){ console.log(e); });
 
@@ -90,22 +80,28 @@ function RedisEvent(channelsList, options) {
 
 	this.subRedis.on('ready', function() {
 		self._connectedCount++;
-		self._subscribe();
+	
+		self.channelsList.forEach(function(channelName) {
+			self.subscribe(channelName);
+		});
+
 		if (self._connectedCount == 2) {
 			self.emit('ready');
 		}
 	});
+
 	this.subRedis.on('end', function() {self._connectedCount--; });
 
 	this.subRedis.on("message", this._onMessage.bind(this));
 }
 util.inherits(RedisEvent, events.EventEmitter);
 
-RedisEvent.prototype._subscribe = function() {
-	var self=this;
-	this.channelsList.forEach(function(channelName) {
-		self.subRedis.subscribe(channelName);
-	});
+RedisEvent.prototype.subscribe = function(channelName) {
+	this.subRedis.subscribe(channelName);
+};
+
+RedisEvent.prototype.unsubscribe = function(channelName) {
+	this.subRedis.unsubscribe(channelName);
 };
 
 RedisEvent.prototype._onMessage = function(channel, message) {
@@ -116,6 +112,7 @@ RedisEvent.prototype._onMessage = function(channel, message) {
 			eventName = channel + ':' +data.event;
 		}
 	} catch(e) {
+	
 	}
 
 	if (data && eventName) {

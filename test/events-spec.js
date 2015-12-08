@@ -21,12 +21,27 @@ describe("Events#", function() {
 		var ev = new RedisEvent(['main'], options);
 		ev.on('ready', function() {
 			ev.on('main:hello', function(data) {
-				assert.deepEqual(data, {name: 'vasya'});
+				assert.deepEqual(data, {name: 'Scott'});
 				ev.quit();
 				return done();
 			});
 
-			ev.pub('main:hello', {name: 'vasya'});
+			ev.pub('main:hello', {name: 'Scott'});
+		});
+	});
+
+	it("should subscribe to a new channel and pubsub", function(done) {
+		var ev = new RedisEvent([], options);
+		ev.on('ready', function() {
+			ev.subscribe('main2');
+			
+			ev.on('main2:hello', function(data) {
+				assert.deepEqual(data, {name: 'Scott'});
+				ev.quit();
+				return done();
+			});
+
+			ev.pub('main2:hello', {name: 'Scott'});
 		});
 	});
 });
