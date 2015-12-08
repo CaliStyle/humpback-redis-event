@@ -106,6 +106,22 @@ __Arguments__
   * `redis` - redis connection to connect to.
     * `connectionFactory` = redis connection factory
 
+### redisEvent.subscribe(channelName)
+
+Subscribe to Channel.
+
+__Arguments__
+
+* `channelName` - channel name;
+
+### redisEvent.unsubscribe(channelName)
+
+Unsubscribe to Channel.
+
+__Arguments__
+
+* `channelName` - channel name;
+
 ### redisEvent.pub(eventName, payload)
 
 Emit network event.
