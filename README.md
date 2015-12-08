@@ -3,7 +3,10 @@ humpback-redis-event
 
 Distributed node.js event emitter based on redis pub/sub.
 
-Supports channels (sort of namespaces). This code is heavily used 24x7 on a thousand-servers cluster, so it is production ready.
+Supports channels (sort of namespaces). This code is heavily used 24x7 on a thousand-servers cluster.
+
+While this iteration of redis-event was built for [Humpback](https://github.com/CaliStyle/humpback) it
+is a good candiate for any server clusters who need to speak to eachother.
 
 # SYNOPSIS
 
@@ -27,10 +30,8 @@ var options = {
   }
 }
 
-var ev = new RedisEvent(
-	['updates', 'stats'],
-	options
-);
+//Connect to localhost redis
+var ev = new RedisEvent(['updates', 'stats']);
 
 ev.on('ready', function() {
 	ev.on('updates:server', function(data) {
@@ -56,6 +57,30 @@ ev.on('ready', function() {
 You can pass a redis connection to humpback-redis-event, or by default it will try to connect to a redis connection on localhost port 6379.
 
 `prefix` controls the key names used in Redis.  By default, there is no prefix. Prefix generally shouldn't be changed unless you need to use one Redis instance for multiple apps. It can also be useful for providing an isolated testbed across your main application.
+
+```js
+var options = {
+  prefix: 'sync',
+  redis: {
+    port: 1234,
+    host: '10.0.50.20',
+    auth: 'password',
+    db: 3, // if provided select a non-default redis db
+    options: {
+    	// see https://github.com/mranney/node_redis#rediscreateclient
+     	enable_offline_queue: false, 
+     	retry_max_delay: 10000, 
+     	max_attempts: 10000, 
+     	no_ready_check: true
+    }
+  }
+}
+```
+
+var ev = new RedisEvent(
+	['updates', 'stats'],
+	options
+);
 
 You can also specify the connection information as a URL string.
 

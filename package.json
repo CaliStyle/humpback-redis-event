@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "fakeredis": "^1.0.0",
-    "redis": ">= 0.8.x"
+    "redis": ">= 0.8.x",
+    "url": "^0.11.0"
   }
 }

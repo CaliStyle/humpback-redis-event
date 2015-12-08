@@ -1,7 +1,8 @@
 var
 	util = require('util'),
 	events = require('events'),
-	redis = require('redis');
+	redis = require('redis'),
+	url   = require('url');
 
 function RedisEvent(channelsList, options) {
 	events.EventEmitter.call(this);
@@ -34,7 +35,7 @@ function RedisEvent(channelsList, options) {
 	options.redis = options.redis || {};
 
 	if (!channelsList || !(channelsList instanceof Array) || channelsList.length < 0) {
-		throw new Error("No channels specified to RedisEvent");
+		throw new Error("Channel syntax is incorrect, must be an array");
 	}
 	this.channelsList = channelsList;
 
@@ -96,14 +97,31 @@ function RedisEvent(channelsList, options) {
 }
 util.inherits(RedisEvent, events.EventEmitter);
 
+/* subscribe
+ * @description subscribes to a channel
+ * @param {String} channelName
+ */
 RedisEvent.prototype.subscribe = function(channelName) {
-	this.subRedis.subscribe(channelName);
+	if(this.channelsList.indexOf(channelName) == -1){
+		this.subRedis.subscribe(channelName);
+	}
 };
 
+/* unsubscribe
+ * @description unsubscribes from a channel
+ * @param {String} channelName
+ */
 RedisEvent.prototype.unsubscribe = function(channelName) {
-	this.subRedis.unsubscribe(channelName);
+	if(this.channelsList.indexOf(channelName) > 0){
+		this.subRedis.unsubscribe(channelName);
+	}
 };
 
+/* _onMessage
+ * @description emits a an event and payload to a channel
+ * @param {String} channel
+ * @param {Object} message
+ */
 RedisEvent.prototype._onMessage = function(channel, message) {
 	var data = null, eventName = null;
 	try {
@@ -120,6 +138,11 @@ RedisEvent.prototype._onMessage = function(channel, message) {
 	}
 };
 
+/* pub
+ * @description publishes a payload to a channel
+ * @param {String} eventName
+ * @param {Mixed} payload
+ */
 RedisEvent.prototype.pub = function(eventName, payload) {
 	var split = eventName.split(':');
 	if (split.length!=2) {
@@ -135,11 +158,18 @@ RedisEvent.prototype.pub = function(eventName, payload) {
 	this.pubRedis.publish(split[0], JSON.stringify(data), function(){});
 };
 
+/* quit
+ * @description ends sub and pub connections
+ */
 RedisEvent.prototype.quit = function() {
 	this.subRedis.quit();
 	this.pubRedis.quit();
 };
 
+/* createClientFactory
+ * @description resolves a redis connection
+ * @param {Object} options
+ */
 RedisEvent.prototype.createClientFactory = function( options ) {
   var socket = options.redis.socket;
   var port   = !socket ? (options.redis.port || 6379) : null;

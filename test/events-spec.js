@@ -44,4 +44,21 @@ describe("Events#", function() {
 			ev.pub('main2:hello', {name: 'Scott'});
 		});
 	});
+
+	it("should subscribe to a new channel only once and pubsub", function(done) {
+		var ev = new RedisEvent([], options);
+		ev.on('ready', function() {
+			
+			ev.subscribe('main2');
+			ev.subscribe('main2');
+
+			ev.on('main2:hello', function(data) {
+				assert.deepEqual(data, {name: 'Scott'});
+				ev.quit();
+				return done();
+			});
+
+			ev.pub('main2:hello', {name: 'Scott'});
+		});
+	});
 });
