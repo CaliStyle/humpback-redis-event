@@ -102,9 +102,8 @@ util.inherits(RedisEvent, events.EventEmitter);
  * @param {String} channelName
  */
 RedisEvent.prototype.subscribe = function(channelName) {
-	if(this.channelsList.indexOf(channelName) == -1){
-		this.subRedis.subscribe(channelName);
-	}
+	
+	this.subRedis.subscribe(channelName);
 };
 
 /* unsubscribe
@@ -112,9 +111,8 @@ RedisEvent.prototype.subscribe = function(channelName) {
  * @param {String} channelName
  */
 RedisEvent.prototype.unsubscribe = function(channelName) {
-	if(this.channelsList.indexOf(channelName) > 0){
-		this.subRedis.unsubscribe(channelName);
-	}
+	
+	this.subRedis.unsubscribe(channelName);
 };
 
 /* _onMessage
@@ -164,6 +162,18 @@ RedisEvent.prototype.pub = function(eventName, payload) {
 RedisEvent.prototype.quit = function() {
 	this.subRedis.quit();
 	this.pubRedis.quit();
+};
+
+/* shutdown
+ * @description ends sub and pub connections
+ * @param {Integer} timeout
+ * @param {String} type
+ * @param {Function} fun
+ */
+RedisEvent.prototype.shutdown = function( timeout, type, fn ) {
+	var self = this;
+	self.quit();
+	return fn(null);
 };
 
 /* createClientFactory

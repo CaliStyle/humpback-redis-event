@@ -102,13 +102,12 @@ var opts = options || {}; // Standard node_redis client options
 var masterName = 'mymaster';
 var sentinel = Sentinel.Sentinel(endpoints);
 
-var ev =  new RedisEvent(['updates', 'stats'],
-	{
-   		redis: {
-      		createClientFactory: function(){
-         		return sentinel.createClient(masterName, opts);
-      	}
-	}
+var ev =  new RedisEvent(['updates', 'stats'],{
+		redis: {
+			createClientFactory: function(){
+				return sentinel.createClient(masterName, opts);
+			}
+		}
 });
 ```
 
