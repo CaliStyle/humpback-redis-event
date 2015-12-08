@@ -1,6 +1,6 @@
 {
   "name": "humpback-redis-event",
-  "version": "0.11.2",
+  "version": "0.11.3",
   "description": "Distributed pub/sub events based on redis",
   "author": "Scott Wyatt <scottwyatt86@gmail.com>",
   "license": "MIT",
